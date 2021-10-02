@@ -9,7 +9,7 @@ const {
   firstCategoryText,
   secondCategoryText,
   thirdCategoryText,
-} = require('./constans');
+} = require('./constants');
 
 const remove_keyboard = Markup.removeKeyboard();
 const start_scene_keyboard = Markup.keyboard([
