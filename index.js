@@ -31,17 +31,12 @@ const files_scene_keyboard = Markup.keyboard([
   'Образец плана-графика',
   'Образец характеристики',
   '⬅️ Назад',
-]);
+]).resize();
 
 const startScene = new BaseScene('startScene');
-startScene.enter(async (ctx) => {
-  await ctx
-    .reply('Добро пожаловать в гид по производственной практики AITU')
-    .catch((error) => console.error(error));
-  return ctx
-    .reply('Выберите действие из меню с кнопками', start_scene_keyboard)
-    .catch((error) => console.error(error));
-});
+startScene.enter((ctx) =>
+  ctx.reply('Выберите действие из меню с кнопками', start_scene_keyboard)
+);
 startScene.hears('Узнать информацию по категориям студентов', (ctx) =>
   ctx.scene.enter('categoriesScene')
 );
@@ -51,22 +46,20 @@ startScene.hears('Загрузить вложения по производст�
 
 const categoriesScene = new BaseScene('categoriesScene');
 categoriesScene.enter(async (ctx) => {
-  await ctx.reply(categoriesTitle).catch((error) => console.error(error));
-  return ctx
-    .reply(
-      'Выберите нужную вам категорию из меню с кнопками',
-      categories_scene_keyboard
-    )
-    .catch((error) => console.error(error));
+  await ctx.reply(categoriesTitle);
+  return ctx.reply(
+    'Выберите нужную вам категорию из меню с кнопками',
+    categories_scene_keyboard
+  );
 });
 categoriesScene.hears('I категория', (ctx) =>
-  ctx.replyWithHTML(firstCategoryText).catch((error) => console.error(error))
+  ctx.replyWithHTML(firstCategoryText)
 );
 categoriesScene.hears('II категория', (ctx) =>
-  ctx.replyWithHTML(secondCategoryText).catch((error) => console.error(error))
+  ctx.replyWithHTML(secondCategoryText)
 );
 categoriesScene.hears('III категория', (ctx) =>
-  ctx.replyWithHTML(thirdCategoryText).catch((error) => console.error(error))
+  ctx.replyWithHTML(thirdCategoryText)
 );
 
 const filesScene = new BaseScene('filesScene');
@@ -74,48 +67,33 @@ filesScene.enter(async (ctx) =>
   ctx.reply('Выберите интересующий вас файл', files_scene_keyboard)
 );
 filesScene.hears('Группы и руководители практики от Университета', (ctx) =>
-  ctx
-    .replyWithDocument({
-      source:
-        './attachments/Группы_и_руководители_практики_от_Университета.xlsx',
-    })
-    .catch((error) => console.error(error))
+  ctx.replyWithDocument({
+    source: './attachments/Группы_и_руководители_практики_от_Университета.xlsx',
+  })
 );
 filesScene.hears('Договор двусторонний', (ctx) =>
-  ctx
-    .replyWithDocument({ source: './attachments/Договор_двусторонний.docx' })
-    .catch((error) => console.error(error))
+  ctx.replyWithDocument({ source: './attachments/Договор_двусторонний.docx' })
 );
 filesScene.hears('Договор на практику трехсторонний', (ctx) =>
-  ctx
-    .replyWithDocument({
-      source: './attachments/Договор_на_практику_трехсторонний.docx',
-    })
-    .catch((error) => console.error(error))
+  ctx.replyWithDocument({
+    source: './attachments/Договор_на_практику_трехсторонний.docx',
+  })
 );
 filesScene.hears('Заявление на перезачет', (ctx) =>
-  ctx
-    .replyWithDocument({
-      source: './attachments/Заявление_на_перезачет.docx',
-    })
-    .catch((error) => console.error(error))
+  ctx.replyWithDocument({
+    source: './attachments/Заявление_на_перезачет.docx',
+  })
 );
 filesScene.hears('Образец отчета + титульный', (ctx) =>
-  ctx
-    .replyWithDocument({
-      source: './attachments/Образец_отчета_+_титульный.docx',
-    })
-    .catch((error) => console.error(error))
+  ctx.replyWithDocument({
+    source: './attachments/Образец_отчета_+_титульный.docx',
+  })
 );
 filesScene.hears('Образец плана-графика', (ctx) =>
-  ctx
-    .replyWithDocument({ source: './attachments/Образец_плана-графика.docx' })
-    .catch((error) => console.error(error))
+  ctx.replyWithDocument({ source: './attachments/Образец_плана-графика.docx' })
 );
 filesScene.hears('Образец характеристики', (ctx) =>
-  ctx
-    .replyWithDocument({ source: './attachments/Образец_характеристики.docx' })
-    .catch((error) => console.error(error))
+  ctx.replyWithDocument({ source: './attachments/Образец_характеристики.docx' })
 );
 
 const stage = new Stage([startScene, categoriesScene, filesScene]);
@@ -124,16 +102,16 @@ stage.hears('⬅️ Назад', async (ctx) => {
   return ctx.scene.enter('startScene');
 });
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
-
-const bot = new Telegraf(BOT_TOKEN);
+const bot = new Telegraf(process.env.BOT_TOKEN);
 bot.use(session(), stage.middleware());
-bot.command('start', (ctx) => ctx.scene.enter('startScene', remove_keyboard));
+bot.command('start', async (ctx) => {
+  await ctx.reply('Добро пожаловать в гид по производственной практики AITU');
+  return ctx.scene.enter('startScene', remove_keyboard);
+});
 bot.on('text', (ctx) =>
-  ctx
-    .reply(
-      'Я вас не понимаю. Попробуйте ввести команду /start для перезапуска бота'
-    )
-    .catch((error) => console.error(error))
+  ctx.reply(
+    'Я вас не понимаю. Попробуйте ввести команду /start для перезапуска бота'
+  )
 );
+bot.catch((error) => console.error(error));
 bot.launch();
